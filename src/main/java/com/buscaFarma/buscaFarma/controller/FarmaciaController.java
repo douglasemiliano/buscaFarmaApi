@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/farmacia")
+@RequestMapping("/farmacias")
 public class FarmaciaController {
     @Autowired
     private FarmaciaRepository farmaciaRepository;
@@ -31,8 +31,6 @@ public class FarmaciaController {
 
     @GetMapping("/busca")
     public List<Farmacia> getFarmaciaByMunicipioEstado(@RequestParam(name = "bairro") String bairro, @RequestParam(name = "municipio") String municipio, @RequestParam(name="estado") String estado) {
-        System.err.println(municipio + " " + estado + " " + bairro);
-
         List<Farmacia> farmacias;
         if (!bairro.isEmpty() && !municipio.isEmpty() && !estado.isEmpty() ) {
             farmacias = farmaciaRepository.buscarPorBairroMunicipioEstado(bairro, municipio,estado);
@@ -48,9 +46,6 @@ public class FarmaciaController {
 
     @GetMapping("/avaliacao/{cnpj}")
     public Object getAvaliacaoByCnpj(@PathVariable String cnpj) {
-        System.err.println("entrou");
-        System.err.println(cnpj);
-        System.err.println(this.farmaciaService.executarAgregacao());
         return this.farmaciaService.executarAgregacao();
     }
 }
