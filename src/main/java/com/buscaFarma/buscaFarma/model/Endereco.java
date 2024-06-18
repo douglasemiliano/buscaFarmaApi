@@ -13,16 +13,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Builder
-public class Farmacia {
-    @Id
-    private String id;
-    private String numeroCNPJ;
-    private String nomeFantasia;
-    private String municipio;
-    private String estado;
-    private List<String> telefone;
-    private CoordenadaGeo coordenadaGeo;
-    private Endereco endereco;
 
-    // Getters e Setters
+public class Endereco {
+    private String rua;
+    private String numero;
+    private String bairro;
 }

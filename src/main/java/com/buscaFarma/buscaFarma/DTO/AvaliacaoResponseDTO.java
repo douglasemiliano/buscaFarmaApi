@@ -1,20 +1,20 @@
-package com.buscaFarma.buscaFarma.model;
+package com.buscaFarma.buscaFarma.DTO;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.buscaFarma.buscaFarma.model.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
-@Document(collection = "Farmacia")
-@ToString
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString
+@NoArgsConstructor
 @Builder
-public class Farmacia {
-    @Id
+public class AvaliacaoResponseDTO {
+
     private String id;
     private String numeroCNPJ;
     private String nomeFantasia;
@@ -23,6 +23,5 @@ public class Farmacia {
     private List<String> telefone;
     private CoordenadaGeo coordenadaGeo;
     private Endereco endereco;
-
-    // Getters e Setters
+    private List<Map<String, Object>> produtos;
 }

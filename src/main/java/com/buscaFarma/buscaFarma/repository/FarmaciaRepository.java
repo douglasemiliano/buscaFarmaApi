@@ -28,4 +28,7 @@ public interface FarmaciaRepository extends MongoRepository<Farmacia, String> {
             "  { $lookup: { from: 'AvaliacaoATD', localField: 'numeroCNPJ', foreignField: 'numeroCNPJ', as: 'avaliacaoATD' } }" +
             "])")
     List<Farmacia> buscarFarmaciasComAvaliacao(String numeroCNPJ);
+
+    @Query("{ 'coordenadaGeo' : { $geoWithin: { $centerSphere: [ [ ?0, ?1 ], ?2 ] } } }")
+    List<Farmacia> findByLocationWithin(double longitude, double latitude, double radius);
 }

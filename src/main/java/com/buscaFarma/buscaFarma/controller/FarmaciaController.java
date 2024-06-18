@@ -1,21 +1,21 @@
 package com.buscaFarma.buscaFarma.controller;
 
+import com.buscaFarma.buscaFarma.DTO.AvaliacaoCompletaDTO;
+import com.buscaFarma.buscaFarma.DTO.AvaliacaoResponseDTO;
 import com.buscaFarma.buscaFarma.model.Farmacia;
 import com.buscaFarma.buscaFarma.repository.FarmaciaRepository;
 import com.buscaFarma.buscaFarma.service.FarmaciaService;
-import org.apache.coyote.Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @RestController
 @RequestMapping("/farmacias")
+@Tag(name="Farmacias", description = "API para gerenciamento das farmácias populares")
 public class FarmaciaController {
     @Autowired
     private FarmaciaRepository farmaciaRepository;
@@ -30,6 +30,7 @@ public class FarmaciaController {
     }
 
     @GetMapping("/busca")
+    @Operation(summary = "Buscar farmacias por filtros", description = "Busca as farmacias por bairro, municipio e estado")
     public List<Farmacia> getFarmaciaByMunicipioEstado(@RequestParam(name = "bairro") String bairro, @RequestParam(name = "municipio") String municipio, @RequestParam(name="estado") String estado) {
         List<Farmacia> farmacias;
         if (!bairro.isEmpty() && !municipio.isEmpty() && !estado.isEmpty() ) {
@@ -44,8 +45,10 @@ public class FarmaciaController {
         return farmacias;
     }
 
-    @GetMapping("/avaliacao/{cnpj}")
-    public Object getAvaliacaoByCnpj(@PathVariable String cnpj) {
-        return this.farmaciaService.executarAgregacao();
+
+    @GetMapping("/proximas")
+    public List<Farmacia> getNearbyFarmacias(@RequestParam double latitude, @RequestParam double longitude, @RequestParam double raioKm) {
+        return farmaciaService.findNearbyFarmacias(latitude, longitude, raioKm);
     }
+
 }
