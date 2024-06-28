@@ -6,20 +6,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "AvaliacaoCmt")
+@Document(collection = "AvaliacaoPrd")
 @ToString
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class AvaliacaoComentario {
-    @Id
-    private String id;
+@NoArgsConstructor
+public class AvaliacaoClienteProduto {
     private LocalDateTime dataPreenchimento;
     private Boolean marcadorAnonimo;
-    private String texto;
-    private String numeroCNPJ;
+    private String principioAtivo;
+    private String patologia;
+    private String tipoModalidade;
     private String numeroDocumento;
+
 }
 

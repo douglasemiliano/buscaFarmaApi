@@ -16,7 +16,7 @@ public class AvaliacaoDTO {
     private String numeroCNPJ;
     private String numeroDocumento;
     private String comentario;
-    private LocalDateTime dataAvaliacao;
+    private LocalDateTime dataPreenchimento;
     private String principioAtivo;
     private String patologia;
     private String tipoModalidade;
