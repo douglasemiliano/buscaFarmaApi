@@ -1,94 +1,182 @@
 package com.buscaFarma.buscaFarma.service;
 
 import com.buscaFarma.buscaFarma.DTO.AvaliacaoDTO;
-import com.buscaFarma.buscaFarma.model.AvaliacaoAtendimento;
-import com.buscaFarma.buscaFarma.model.AvaliacaoComentario;
-import com.buscaFarma.buscaFarma.model.AvaliacaoProduto;
-import com.buscaFarma.buscaFarma.model.AvaliacaoRanking;
-import com.buscaFarma.buscaFarma.repository.AvaliacaoAtendimentoRepository;
-import com.buscaFarma.buscaFarma.repository.AvaliacaoComentarioRepository;
-import com.buscaFarma.buscaFarma.repository.AvaliacaoProdutoRepository;
-import com.buscaFarma.buscaFarma.repository.AvaliacaoRankingRepository;
+import com.buscaFarma.buscaFarma.DTO.AvaliacaoCompletaDTO;
+import com.buscaFarma.buscaFarma.DTO.AvaliacaoResponseDTO;
+import com.buscaFarma.buscaFarma.exception.CustomException;
+import com.buscaFarma.buscaFarma.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AvaliacaoService {
 
     @Autowired
-    private AvaliacaoProdutoRepository avaliacaoProdutoRepository;
+    private MongoTemplate mongoTemplate;
 
-    @Autowired
-    private AvaliacaoAtendimentoRepository avaliacaoAtendimentoRepository;
+    public AvaliacaoDTO avaliar(String farmaciaId, AvaliacaoDTO avaliacaoDTO){
 
-    @Autowired
-    private AvaliacaoComentarioRepository avaliacaoComentarioRepository;
+        avaliacaoDTO.setDataPreenchimento(LocalDateTime.now());
+        AvaliacaoClienteProduto avaliacaoProduto = this.criarAvaliacaoProduto(avaliacaoDTO);
+        AvaliacaoClienteATD avaliacaoAtendimento = this.criarAvaliacaoAtendimento(avaliacaoDTO);
+        AvaliacaoClienteComentario avaliacaoComentario = this.criarAvaliacaoComentario(avaliacaoDTO);
+        AvaliacaoClienteRank avaliacaoRanking = this.criarAvaliacaoRank(avaliacaoDTO);
 
-    @Autowired
-    private AvaliacaoRankingRepository avaliacaoRankingRepository;
+        this.atualizarAvaliacaoProduto(farmaciaId, avaliacaoProduto);
+        this.atualizarAvaliacaoATD(farmaciaId, avaliacaoAtendimento);
+        this.atualizarAvaliacaoComentario(farmaciaId, avaliacaoComentario);
+        this.atualizarAvaliacaoRank(farmaciaId, avaliacaoRanking);
 
+        return avaliacaoDTO;
+    }
 
-
-    public String avaliar(AvaliacaoDTO avaliacaoDTO){
-        AvaliacaoProduto avaliacaoProduto = AvaliacaoProduto.builder()
-                .dataAvaliacao(avaliacaoDTO.getDataAvaliacao())
+    private AvaliacaoClienteProduto criarAvaliacaoProduto (AvaliacaoDTO avaliacaoDTO) {
+        return AvaliacaoClienteProduto.builder()
+                .dataPreenchimento(LocalDateTime.now())
                 .marcadorAnonimo(avaliacaoDTO.getMarcadorAnonimo())
                 .principioAtivo(avaliacaoDTO.getPrincipioAtivo())
                 .patologia(avaliacaoDTO.getPatologia())
                 .tipoModalidade(avaliacaoDTO.getTipoModalidade())
-                .numeroCNPJ(avaliacaoDTO.getNumeroCNPJ())
                 .numeroDocumento(avaliacaoDTO.getNumeroDocumento())
                 .build();
+    }
 
-        AvaliacaoAtendimento avaliacaoAtendimento = AvaliacaoAtendimento.builder()
-                .dataPreenchimento(avaliacaoDTO.getDataAvaliacao())
+    private AvaliacaoClienteATD criarAvaliacaoAtendimento (AvaliacaoDTO avaliacaoDTO) {
+        return AvaliacaoClienteATD.builder()
+                .dataPreenchimento(avaliacaoDTO.getDataPreenchimento())
                 .marcadorAnonimo(avaliacaoDTO.getMarcadorAnonimo())
                 .houveFila(avaliacaoDTO.getHouveFila())
                 .horarioAtendimento(avaliacaoDTO.getHorarioAtendimento())
-                .numeroCNPJ(avaliacaoDTO.getNumeroCNPJ())
                 .numeroDocumento(avaliacaoDTO.getNumeroDocumento())
                 .qualidadeAtendimento(avaliacaoDTO.getQualidadeAtendimento())
                 .tipoAdquirido(avaliacaoDTO.getTipoAdquirido())
                 .build();
+    }
 
-        AvaliacaoComentario avaliacaoComentario = AvaliacaoComentario.builder()
-                .dataPreenchimento(avaliacaoDTO.getDataAvaliacao())
+    private AvaliacaoClienteComentario criarAvaliacaoComentario (AvaliacaoDTO avaliacaoDTO) {
+        return AvaliacaoClienteComentario.builder()
+                .dataPreenchimento(avaliacaoDTO.getDataPreenchimento())
                 .marcadorAnonimo(avaliacaoDTO.getMarcadorAnonimo())
                 .texto(avaliacaoDTO.getComentario())
-                .numeroCNPJ(avaliacaoDTO.getNumeroCNPJ())
                 .numeroDocumento(avaliacaoDTO.getNumeroDocumento())
                 .build();
+    }
 
-        AvaliacaoRanking avaliacaoRanking = AvaliacaoRanking.builder()
-                .dataPreenchimento(avaliacaoDTO.getDataAvaliacao())
+    private AvaliacaoClienteRank criarAvaliacaoRank (AvaliacaoDTO avaliacaoDTO) {
+        return AvaliacaoClienteRank.builder()
+                .dataPreenchimento(avaliacaoDTO.getDataPreenchimento())
                 .marcadorAnonimo(avaliacaoDTO.getMarcadorAnonimo())
                 .valor(avaliacaoDTO.getNota())
-                .numeroCNPJ(avaliacaoDTO.getNumeroCNPJ())
                 .numeroDocumento(avaliacaoDTO.getNumeroDocumento())
                 .build();
-
-        this.avaliarProduto(avaliacaoProduto);
-        this.avaliarAtendimento(avaliacaoAtendimento);
-        this.avaliarComentario(avaliacaoComentario);
-        this.avaliarRanking(avaliacaoRanking);
-
-        return "Avaliação com sucesso";
-    }
-    public AvaliacaoProduto avaliarProduto(AvaliacaoProduto avaliacaoProduto) {
-        return this.avaliacaoProdutoRepository.save(avaliacaoProduto);
     }
 
-    public AvaliacaoAtendimento avaliarAtendimento(AvaliacaoAtendimento avaliacaoAtendimento) {
-        return this.avaliacaoAtendimentoRepository.save(avaliacaoAtendimento);
+    public void atualizarAvaliacaoProduto(String farmaciaId, AvaliacaoClienteProduto novaAvaliacao) {
+        Query query = new Query(Criteria.where("id").is(farmaciaId));
+        Update update = new Update().push("avaliacaoClienteProduto", novaAvaliacao);
+        mongoTemplate.updateFirst(query, update, Farmacia.class);
     }
-    public AvaliacaoComentario avaliarComentario(AvaliacaoComentario avaliacaoComentario) {
-        return this.avaliacaoComentarioRepository.save(avaliacaoComentario);
+
+    public void atualizarAvaliacaoRank(String farmaciaId, AvaliacaoClienteRank novaAvaliacao) {
+        Query query = new Query(Criteria.where("id").is(farmaciaId));
+        Update update = new Update().push("avaliacaoClienteRank", novaAvaliacao);
+        mongoTemplate.updateFirst(query, update, Farmacia.class);
     }
-    public AvaliacaoRanking avaliarRanking(AvaliacaoRanking avaliacaoRanking) {
-        return this.avaliacaoRankingRepository.save(avaliacaoRanking);
+
+    public void atualizarAvaliacaoComentario(String farmaciaId, AvaliacaoClienteComentario novoComentario) {
+        Query query = new Query(Criteria.where("id").is(farmaciaId));
+        Update update = new Update().push("avaliacaoClienteComentario", novoComentario);
+        mongoTemplate.updateFirst(query, update, Farmacia.class);
     }
+
+    public void atualizarAvaliacaoATD(String farmaciaId, AvaliacaoClienteATD novaAvaliacao) {
+        Query query = new Query(Criteria.where("id").is(farmaciaId));
+        Update update = new Update().push("avaliacaoClienteATD", novaAvaliacao);
+        mongoTemplate.updateFirst(query, update, Farmacia.class);
+    }
+
+    public Farmacia salvarFarmacia(Farmacia farmacia){
+        this.mongoTemplate.insert(farmacia);
+        return farmacia;
+    }
+
+
+    public AvaliacaoCompletaDTO buscarTodasAvaliacoesPorIdFarmacia(String farmaciaId) {
+        Query query = new Query(Criteria.where("id").is(farmaciaId));
+        query.fields().include("avaliacaoClienteProduto", "avaliacaoClienteRank", "avaliacaoClienteComentario", "avaliacaoClienteATD");
+        Farmacia farmacia = mongoTemplate.findOne(query, Farmacia.class);
+
+        if (farmacia != null) {
+            return AvaliacaoCompletaDTO.builder()
+                    .avaliacaoClienteProdutoList(farmacia.getAvaliacaoClienteProduto())
+                    .avaliacaoClienteAtendimentoList(farmacia.getAvaliacaoClienteATD())
+                    .avaliacaoClienteComentarioList(farmacia.getAvaliacaoClienteComentario())
+                    .avaliacaoClienteRankList(farmacia.getAvaliacaoClienteRank())
+                    .build();
+        }
+
+
+        return new AvaliacaoCompletaDTO();
+    }
+
+    public AvaliacaoResponseDTO processarAvaliacoes(String id) {
+        AvaliacaoCompletaDTO avaliacaoCompletaDTO = buscarTodasAvaliacoesPorIdFarmacia(id);
+        if(avaliacaoCompletaDTO.getAvaliacaoClienteProdutoList() == null || avaliacaoCompletaDTO.getAvaliacaoClienteAtendimentoList() == null ||
+        avaliacaoCompletaDTO.getAvaliacaoClienteComentarioList() == null || avaliacaoCompletaDTO.getAvaliacaoClienteRankList() == null) {
+            throw new CustomException("Nenhuma avaliação encontrada");
+        }
+        List<Produto> listaProdutos = getListaProduto(avaliacaoCompletaDTO.getAvaliacaoClienteProdutoList());
+        double media = mediaRanking(avaliacaoCompletaDTO.getAvaliacaoClienteRankList());
+        return AvaliacaoResponseDTO.builder()
+                .produtos(listaProdutos)
+                .comentarios(avaliacaoCompletaDTO.getAvaliacaoClienteComentarioList())
+                .media(media)
+                .build();
+    }
+
+    private double mediaRanking(List<AvaliacaoClienteRank> avaliacoes) {
+        double soma = 0;
+
+        for (AvaliacaoClienteRank avaliacao: avaliacoes) {
+            soma += avaliacao.getValor();
+        }
+
+        BigDecimal media = new BigDecimal(soma / avaliacoes.size()).setScale(2, RoundingMode.HALF_UP);
+        return media.doubleValue();
+    }
+
+    public static List<Produto> getListaProduto(List<AvaliacaoClienteProduto> avaliacoes) {
+        Map<String, Produto> produtoMap = new HashMap<>();
+
+        for (AvaliacaoClienteProduto avaliacao : avaliacoes) {
+            String principioAtivo = avaliacao.getPrincipioAtivo();
+            LocalDateTime dataPreenchimento = avaliacao.getDataPreenchimento();
+            String patologia = avaliacao.getPatologia();
+
+            // Se o princípio ativo já estiver no mapa, verifica se a nova avaliação é mais recente
+            if (produtoMap.containsKey(principioAtivo)) {
+                if (produtoMap.get(principioAtivo).getDataAvaliacao().isBefore(dataPreenchimento)) {
+                    produtoMap.put(principioAtivo, new Produto(principioAtivo, patologia, dataPreenchimento));
+                }
+            } else {
+                produtoMap.put(principioAtivo, new Produto(principioAtivo, patologia, dataPreenchimento));
+            }
+        }
+
+        return new ArrayList<>(produtoMap.values());
+    }
+
 }
 

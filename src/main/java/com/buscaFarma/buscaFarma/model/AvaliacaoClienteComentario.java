@@ -5,26 +5,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
-@Document(collection = "AvaliacaoPrd")
+@Document(collection = "AvaliacaoCmt")
 @ToString
 @Getter
 @Setter
 @AllArgsConstructor
-@Builder
 @NoArgsConstructor
-public class AvaliacaoProduto {
-    @Id
-    private String id;
-    private LocalDateTime dataAvaliacao;
+@Builder
+public class AvaliacaoClienteComentario {
+    private LocalDateTime dataPreenchimento;
     private Boolean marcadorAnonimo;
-    private String principioAtivo;
-    private String patologia;
-    private String tipoModalidade;
-    private String numeroCNPJ;
+    private String texto;
     private String numeroDocumento;
-
 }
 

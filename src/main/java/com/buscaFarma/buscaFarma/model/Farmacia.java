@@ -1,6 +1,5 @@
 package com.buscaFarma.buscaFarma.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +22,10 @@ public class Farmacia {
     private List<String> telefone;
     private CoordenadaGeo coordenadaGeo;
     private Endereco endereco;
+    private List<AvaliacaoClienteProduto> avaliacaoClienteProduto;
+    private List<AvaliacaoClienteRank> avaliacaoClienteRank;
+    private List<AvaliacaoClienteComentario> avaliacaoClienteComentario;
+    private List<AvaliacaoClienteATD> avaliacaoClienteATD;
 
     // Getters e Setters
 }
