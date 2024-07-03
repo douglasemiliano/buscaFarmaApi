@@ -13,6 +13,10 @@ public class EnderecoService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
+    public List<Endereco> listarTodos(){
+        return enderecoRepository.findAll();
+    }
+
     public List<String> buscarMunicipiosPorEstado(String estado) {
         return enderecoRepository.findDistinctMunicipiosByEstado(estado);
     }

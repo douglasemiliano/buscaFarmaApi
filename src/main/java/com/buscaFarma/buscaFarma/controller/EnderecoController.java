@@ -1,12 +1,18 @@
 package com.buscaFarma.buscaFarma.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.buscaFarma.buscaFarma.model.Endereco;
 import com.buscaFarma.buscaFarma.service.EnderecoService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/enderecos")
@@ -15,6 +21,12 @@ public class EnderecoController {
 
     @Autowired
     private EnderecoService enderecoService;
+
+    @GetMapping()
+    @Operation(summary = "Listar todos os endereços", description = "Retornar todos os endereços do Sistema")
+    public List<Endereco> listarEnderecos(){
+        return enderecoService.listarTodos();
+    }
 
     // http://localhost:8080/enderecos/municipios/PB
     @GetMapping("/municipios/{estado}")

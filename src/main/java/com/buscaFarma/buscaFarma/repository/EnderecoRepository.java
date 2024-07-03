@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface EnderecoRepository extends MongoRepository<Endereco, String> {
+    List<Endereco> findAll();
 
     @Query(value = "{ 'estado' : ?0 }", fields = "{ 'municipio' : 1 }")
     List<String> findDistinctMunicipiosByEstado(String estado);
