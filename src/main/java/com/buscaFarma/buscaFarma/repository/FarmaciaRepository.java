@@ -31,4 +31,10 @@ public interface FarmaciaRepository extends MongoRepository<Farmacia, String> {
 
     @Query("{ 'coordenadaGeo' : { $geoWithin: { $centerSphere: [ [ ?0, ?1 ], ?2 ] } } }")
     List<Farmacia> findByLocationWithin(double longitude, double latitude, double radius);
+
+    @Query(value="{ 'estado' : ?0 }", fields="{ 'municipio' : 1 }")
+    List<Farmacia> findMunicipiosByEstado(String estado);
+
+    @Query(value="{ 'estado' : ?0, 'municipio' : ?1 }", fields="{ 'endereco.bairro' : 1 }")
+    List<Farmacia> findBairrosByEstadoAndMunicipio(String estado, String municipio);
 }

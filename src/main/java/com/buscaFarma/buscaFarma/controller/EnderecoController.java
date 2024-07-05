@@ -22,24 +22,16 @@ public class EnderecoController {
     @Autowired
     private EnderecoService enderecoService;
 
-    @GetMapping()
-    @Operation(summary = "Listar todos os endereços", description = "Retornar todos os endereços do Sistema")
-    public List<Endereco> listarEnderecos(){
-        return enderecoService.listarTodos();
-    }
 
-    // http://localhost:8080/enderecos/municipios/PB
     @GetMapping("/municipios/{estado}")
     @Operation(summary = "Buscar municípios por estado", description = "Retorna todos os municípios de um determinado estado")
     public List<String> buscarMunicipiosPorEstado(@PathVariable String estado) {
-        return enderecoService.buscarMunicipiosPorEstado(estado);
+        return enderecoService.findMunicipiosByEstado(estado);
     }
-
-    // http://localhost:8080/enderecos/bairros/PB/Joao Pessoa
 
     @GetMapping("/bairros/{estado}/{municipio}")
     @Operation(summary = "Buscar bairros por município e estado", description = "Retorna todos os bairros de um determinado município de um estado")
     public List<String> buscarBairrosPorMunicipioEEstado(@PathVariable String estado, @PathVariable String municipio) {
-        return enderecoService.buscarBairrosPorMunicipioEEstado(municipio, estado);
+        return enderecoService.findBairrosByEstadoAndMunicipio(estado, municipio);
     }
 }
